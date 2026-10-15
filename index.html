@@ -3,65 +3,59 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ruckus Portal Debug</title>
+<title>Jollibee Free WiFi</title>
 <style>
-  body { font-family: -apple-system, system-ui, sans-serif; padding: 16px; background:#111; color:#eee; }
-  h1 { font-size: 18px; }
-  pre { background:#000; color:#0f0; padding:12px; border-radius:8px; white-space:pre-wrap; word-break:break-all; font-size:13px; }
-  label { display:block; margin-top:10px; font-size:14px; }
-  input { width:100%; padding:10px; font-size:16px; box-sizing:border-box; margin-top:4px; }
-  button { margin-top:14px; padding:12px; width:100%; font-size:16px; }
-  .row { display:flex; gap:8px; }
-  .row > div { flex:1; }
+  body { font-family: -apple-system, system-ui, sans-serif; padding: 20px; background:#c8102e; color:#fff; min-height:100vh; box-sizing:border-box; }
+  .card { background:#fff; color:#222; border-radius:12px; padding:20px; max-width:380px; margin:40px auto; }
+  h1 { font-size:20px; margin-top:0; color:#c8102e; }
+  p { font-size:14px; line-height:1.5; }
+  label { display:block; margin-top:12px; font-size:13px; font-weight:bold; }
+  input { width:100%; padding:12px; font-size:16px; box-sizing:border-box; margin-top:4px; border:1px solid #ccc; border-radius:6px; }
+  button { margin-top:18px; padding:14px; width:100%; font-size:16px; background:#c8102e; color:#fff; border:none; border-radius:6px; font-weight:bold; }
+  .err { color:#c8102e; font-size:13px; margin-top:8px; }
+  .debug { font-size:11px; color:#999; margin-top:20px; white-space:pre-wrap; word-break:break-all; }
 </style>
 </head>
 <body>
-<h1>Ruckus Hotspot Portal — DEBUG</h1>
-<p>Trang tạm để dò query string Ruckus gửi kèm khi redirect khách vào login page. Không dùng cho khách thật.</p>
-
-<h3>Query string nhận được:</h3>
-<pre id="qs">(đang đọc...)</pre>
-
-<h3>document.referrer:</h3>
-<pre id="ref">(đang đọc...)</pre>
-
-<h3>Thử submit thủ công (tự điền action nếu biết uamip/uamport):</h3>
-<form id="f" method="get" target="_blank">
-  <label>Form action URL (vd https://10.10.0.1:9998/login)
-    <input id="action" name="_action" type="text" placeholder="https://<uamip>:<uamport>/login">
-  </label>
-  <div class="row">
-    <div><label>username field name<input id="unamekey" value="username"></label></div>
-    <div><label>password field name<input id="upasskey" value="password"></label></div>
-  </div>
-  <label>Username <input name="username" value="guest"></label>
-  <label>Password <input name="password" value=""></label>
-  <button type="submit">Submit (mở tab mới, xem kết quả)</button>
-</form>
+<div class="card">
+  <h1>WiFi miễn phí Jollibee</h1>
+  <p>Nhập thông tin bên dưới để kết nối. WiFi sẽ tự ngắt sau <strong>60 giây</strong> để nhường cho khách khác.</p>
+  <form id="f" method="POST">
+    <input type="hidden" name="client_mac" id="client_mac">
+    <input type="hidden" name="uip" id="uip">
+    <input type="hidden" name="url" id="url">
+    <label>Tên đăng nhập
+      <input name="username" id="username" value="guest" readonly>
+    </label>
+    <label>Mật khẩu
+      <input name="password" id="password" type="text" placeholder="Hỏi nhân viên quầy">
+    </label>
+    <button type="submit">Kết nối WiFi</button>
+  </form>
+  <div id="err" class="err"></div>
+  <div class="debug" id="debug"></div>
+</div>
 
 <script>
-function readParams() {
-  const qs = window.location.search || '(rỗng)';
-  document.getElementById('qs').textContent = qs;
-  try {
-    const params = new URLSearchParams(window.location.search);
-    let lines = [];
-    for (const [k,v] of params.entries()) lines.push(k + ' = ' + v);
-    if (lines.length) document.getElementById('qs').textContent = qs + '\n\n--- parsed ---\n' + lines.join('\n');
-  } catch(e) {}
-  document.getElementById('ref').textContent = document.referrer || '(rỗng)';
-}
-readParams();
+const qs = new URLSearchParams(window.location.search);
+const sip = qs.get('sip');
+const clientMac = qs.get('client_mac') || qs.get('mac') || '';
+const uip = qs.get('uip') || '';
+const origUrl = qs.get('url') || '';
 
-document.getElementById('f').addEventListener('submit', function(e) {
-  const action = document.getElementById('action').value.trim();
-  if (action) {
-    e.preventDefault();
-    const form = e.target;
-    form.action = action;
-    form.submit();
-  }
-});
+document.getElementById('client_mac').value = clientMac;
+document.getElementById('uip').value = uip;
+document.getElementById('url').value = origUrl;
+
+const f = document.getElementById('f');
+if (sip) {
+  f.action = 'https://' + sip + ':9998/login';
+} else {
+  document.getElementById('err').textContent = 'Thiếu tham số sip trong query string — không xác định được controller.';
+}
+
+document.getElementById('debug').textContent =
+  'sip=' + sip + ' | client_mac=' + clientMac + ' | uip=' + uip + ' | url=' + origUrl + ' | action=' + (f.action || '(chưa set)');
 </script>
 </body>
 </html>
