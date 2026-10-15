@@ -20,7 +20,11 @@
     box-shadow: 0 10px 30px rgba(0,0,0,.25);
     text-align: center;
   }
-  .logo { height: 56px; margin-bottom: 14px; }
+  .logo { height: 56px; display: block; margin: 0 auto 4px; }
+  .logo-text {
+    font-size: 22px; font-weight: 900; color: var(--jb-red);
+    letter-spacing: .01em; margin-bottom: 14px;
+  }
   h1 { font-size: 22px; margin: 0 0 8px; color: var(--jb-red); }
   p { font-size: 14px; line-height: 1.6; color: #555; margin: 0 0 6px; }
   .timer {
@@ -41,6 +45,7 @@
 <body>
 <div class="card">
   <img class="logo" src="https://jollibee.com.vn/static/version1791904190/frontend/Jollibee/default/vi_VN/images/logo.png" alt="Jollibee">
+  <div class="logo-text">Jollibee</div>
   <h1>Chào bạn! WiFi miễn phí đây</h1>
   <p>Bấm "Đồng ý & Kết nối" để vào mạng ngay — không cần mật khẩu.</p>
   <div class="timer">⏱ Mỗi lượt kết nối kéo dài <strong>2 phút</strong>, sau đó tự ngắt để nhường WiFi cho khách khác. Hết giờ chỉ cần bấm kết nối lại nhé!</div>
