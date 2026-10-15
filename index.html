@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ruckus Portal Debug</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; padding: 16px; background:#111; color:#eee; }
+  h1 { font-size: 18px; }
+  pre { background:#000; color:#0f0; padding:12px; border-radius:8px; white-space:pre-wrap; word-break:break-all; font-size:13px; }
+  label { display:block; margin-top:10px; font-size:14px; }
+  input { width:100%; padding:10px; font-size:16px; box-sizing:border-box; margin-top:4px; }
+  button { margin-top:14px; padding:12px; width:100%; font-size:16px; }
+  .row { display:flex; gap:8px; }
+  .row > div { flex:1; }
+</style>
+</head>
+<body>
+<h1>Ruckus Hotspot Portal — DEBUG</h1>
+<p>Trang tạm để dò query string Ruckus gửi kèm khi redirect khách vào login page. Không dùng cho khách thật.</p>
+
+<h3>Query string nhận được:</h3>
+<pre id="qs">(đang đọc...)</pre>
+
+<h3>document.referrer:</h3>
+<pre id="ref">(đang đọc...)</pre>
+
+<h3>Thử submit thủ công (tự điền action nếu biết uamip/uamport):</h3>
+<form id="f" method="get" target="_blank">
+  <label>Form action URL (vd https://10.10.0.1:9998/login)
+    <input id="action" name="_action" type="text" placeholder="https://<uamip>:<uamport>/login">
+  </label>
+  <div class="row">
+    <div><label>username field name<input id="unamekey" value="username"></label></div>
+    <div><label>password field name<input id="upasskey" value="password"></label></div>
+  </div>
+  <label>Username <input name="username" value="guest"></label>
+  <label>Password <input name="password" value=""></label>
+  <button type="submit">Submit (mở tab mới, xem kết quả)</button>
+</form>
+
+<script>
+function readParams() {
+  const qs = window.location.search || '(rỗng)';
+  document.getElementById('qs').textContent = qs;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    let lines = [];
+    for (const [k,v] of params.entries()) lines.push(k + ' = ' + v);
+    if (lines.length) document.getElementById('qs').textContent = qs + '\n\n--- parsed ---\n' + lines.join('\n');
+  } catch(e) {}
+  document.getElementById('ref').textContent = document.referrer || '(rỗng)';
+}
+readParams();
+
+document.getElementById('f').addEventListener('submit', function(e) {
+  const action = document.getElementById('action').value.trim();
+  if (action) {
+    e.preventDefault();
+    const form = e.target;
+    form.action = action;
+    form.submit();
+  }
+});
+</script>
+</body>
+</html>
