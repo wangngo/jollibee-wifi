@@ -5,57 +5,76 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Jollibee Free WiFi</title>
 <style>
-  body { font-family: -apple-system, system-ui, sans-serif; padding: 20px; background:#c8102e; color:#fff; min-height:100vh; box-sizing:border-box; }
-  .card { background:#fff; color:#222; border-radius:12px; padding:20px; max-width:380px; margin:40px auto; }
-  h1 { font-size:20px; margin-top:0; color:#c8102e; }
-  p { font-size:14px; line-height:1.5; }
-  label { display:block; margin-top:12px; font-size:13px; font-weight:bold; }
-  input { width:100%; padding:12px; font-size:16px; box-sizing:border-box; margin-top:4px; border:1px solid #ccc; border-radius:6px; }
-  button { margin-top:18px; padding:14px; width:100%; font-size:16px; background:#c8102e; color:#fff; border:none; border-radius:6px; font-weight:bold; }
-  .err { color:#c8102e; font-size:13px; margin-top:8px; }
-  .debug { font-size:11px; color:#999; margin-top:20px; white-space:pre-wrap; word-break:break-all; }
+  :root { --jb-red:#c8102e; --jb-gold:#fdb827; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, system-ui, "Segoe UI", sans-serif;
+    margin: 0; min-height: 100vh;
+    background: linear-gradient(180deg, var(--jb-red) 0%, #8f0b20 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    background: #fff; color: #222; border-radius: 18px;
+    padding: 28px 24px; max-width: 380px; width: 100%;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    text-align: center;
+  }
+  .badge {
+    display: inline-block; background: var(--jb-gold); color: #7a1a00;
+    font-weight: 800; font-size: 12px; letter-spacing: .04em;
+    padding: 6px 14px; border-radius: 999px; margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  h1 { font-size: 22px; margin: 0 0 8px; color: var(--jb-red); }
+  p { font-size: 14px; line-height: 1.6; color: #555; margin: 0 0 6px; }
+  .timer {
+    font-size: 13px; color: #7a1a00; background: #fff6e0;
+    border: 1px solid var(--jb-gold); border-radius: 10px;
+    padding: 10px 12px; margin: 16px 0;
+  }
+  button {
+    margin-top: 10px; padding: 15px; width: 100%; font-size: 17px;
+    background: var(--jb-red); color: #fff; border: none; border-radius: 10px;
+    font-weight: 700; cursor: pointer;
+  }
+  button:active { background: #8f0b20; }
+  .err { color: var(--jb-red); font-size: 13px; margin-top: 10px; }
+  .fine { font-size: 11px; color: #aaa; margin-top: 16px; }
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>WiFi miễn phí Jollibee</h1>
-  <p>Nhập thông tin bên dưới để kết nối. WiFi sẽ tự ngắt sau <strong>60 giây</strong> để nhường cho khách khác.</p>
+  <span class="badge">Jollibee WiFi</span>
+  <h1>Chào bạn! WiFi miễn phí đây 🐝</h1>
+  <p>Bấm "Đồng ý & Kết nối" để vào mạng ngay — không cần mật khẩu.</p>
+  <div class="timer">⏱ Mỗi lượt kết nối kéo dài <strong>2 phút</strong>, sau đó tự ngắt để nhường WiFi cho khách khác. Hết giờ chỉ cần bấm kết nối lại nhé!</div>
   <form id="f" method="POST">
+    <input type="hidden" name="username" value="guest">
+    <input type="hidden" name="password" id="pw">
     <input type="hidden" name="client_mac" id="client_mac">
     <input type="hidden" name="uip" id="uip">
     <input type="hidden" name="url" id="url">
-    <label>Tên đăng nhập
-      <input name="username" id="username" value="guest" readonly>
-    </label>
-    <label>Mật khẩu
-      <input name="password" id="password" type="text" placeholder="Hỏi nhân viên quầy">
-    </label>
-    <button type="submit">Kết nối WiFi</button>
+    <button type="submit">Đồng ý &amp; Kết nối WiFi</button>
   </form>
   <div id="err" class="err"></div>
-  <div class="debug" id="debug"></div>
+  <div class="fine">Bằng việc kết nối, bạn đồng ý sử dụng WiFi đúng mục đích hợp lệ.</div>
 </div>
 
 <script>
 const qs = new URLSearchParams(window.location.search);
 const sip = qs.get('sip');
-const clientMac = qs.get('client_mac') || qs.get('mac') || '';
-const uip = qs.get('uip') || '';
-const origUrl = qs.get('url') || '';
-
-document.getElementById('client_mac').value = clientMac;
-document.getElementById('uip').value = uip;
-document.getElementById('url').value = origUrl;
+document.getElementById('pw').value = atob('am9sbGliZWUxMjM=');
+document.getElementById('client_mac').value = qs.get('client_mac') || qs.get('mac') || '';
+document.getElementById('uip').value = qs.get('uip') || '';
+document.getElementById('url').value = qs.get('url') || '';
 
 const f = document.getElementById('f');
 if (sip) {
   f.action = 'https://' + sip + ':9998/login';
 } else {
-  document.getElementById('err').textContent = 'Thiếu tham số sip trong query string — không xác định được controller.';
+  document.getElementById('err').textContent = 'Không xác định được điểm truy cập WiFi — vui lòng kết nối lại mạng WiFi và thử lại.';
 }
-
-document.getElementById('debug').textContent =
-  'sip=' + sip + ' | client_mac=' + clientMac + ' | uip=' + uip + ' | url=' + origUrl + ' | action=' + (f.action || '(chưa set)');
 </script>
 </body>
 </html>
